@@ -121,3 +121,39 @@ export const updateAppointment = async (id: string, data: Partial<Appointment>):
     headers: data.tenant_id ? { "x-tenant-id": data.tenant_id } : undefined
   })).data;
 };
+
+// --- Vendors ---
+export const fetchVendors = async (): Promise<any[]> => {
+  return (await api.get("/vendors/")).data;
+};
+
+export const createVendor = async (data: any): Promise<any> => {
+  return (await api.post("/vendors/", data, {
+    headers: data.tenant_id ? { "x-tenant-id": data.tenant_id } : undefined
+  })).data;
+};
+
+export const updateVendor = async (id: string, data: any): Promise<any> => {
+  return (await api.put(`/vendors/${id}`, data, {
+    headers: data.tenant_id ? { "x-tenant-id": data.tenant_id } : undefined
+  })).data;
+};
+
+export const deleteVendor = async (id: string, tenantId?: string): Promise<void> => {
+  await api.delete(`/vendors/${id}`, {
+    headers: tenantId ? { "x-tenant-id": tenantId } : undefined
+  });
+};
+
+// --- Prescriptions ---
+export const getPrescription = async (id: string, tenantId?: string): Promise<any> => {
+  return (await api.get(`/prescriptions/${id}`, {
+    headers: tenantId ? { "x-tenant-id": tenantId } : undefined
+  })).data;
+};
+
+export const verifyPrescription = async (id: string, data: any, tenantId?: string): Promise<any> => {
+  return (await api.post(`/prescriptions/${id}/verify`, data, {
+    headers: tenantId ? { "x-tenant-id": tenantId } : undefined
+  })).data;
+};
