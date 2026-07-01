@@ -34,6 +34,13 @@ export function LoginForm() {
     }
   };
 
+  const setSessionCookie = (role: Role) => {
+    let cookieName = "staff_session";
+    if (role === Role.SUPER_ADMIN || role === Role.HOSPITAL_ADMIN) cookieName = "super_admin_session";
+    if (role === Role.DOCTOR) cookieName = "doctor_session";
+    document.cookie = `${cookieName}=true; path=/; max-age=86400; SameSite=Lax`;
+  };
+
   const onLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -43,6 +50,7 @@ export function LoginForm() {
       if (userDoc.exists()) {
         const profile = userDoc.data() as UserProfile;
         toast.success("Login successful!");
+        setSessionCookie(profile.role);
         handleRedirect(profile.role);
       } else {
         toast.error("User profile not found. Please contact support.");
@@ -63,6 +71,7 @@ export function LoginForm() {
       if (userDoc.exists()) {
         const profile = userDoc.data() as UserProfile;
         toast.success("Google Login successful!");
+        setSessionCookie(profile.role);
         handleRedirect(profile.role);
       } else {
         toast.error("User profile not found. Please contact support.");

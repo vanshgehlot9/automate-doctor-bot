@@ -23,6 +23,10 @@ export function Topbar({ userProfile }: { userProfile: UserProfile }) {
 
   const handleLogout = async () => {
     await signOut(auth);
+    const ALL_COOKIES = ["vendor_session", "business_session", "staff_session", "super_admin_session", "doctor_session"];
+    for (const cookie of ALL_COOKIES) {
+      document.cookie = `${cookie}=; path=/; max-age=0`;
+    }
     router.push("/login");
   };
 
