@@ -25,7 +25,7 @@ export function middleware(request: NextRequest) {
   }
 
   const sessionToken = request.cookies.get(route.cookie)?.value;
-  if (sessionToken) {
+  if (sessionToken || pathname === route.login) {
     return NextResponse.next();
   }
 
