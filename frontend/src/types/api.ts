@@ -32,9 +32,12 @@ export interface Patient {
   name: string;
   phone: string;
   dob: string | null;
+  age?: number | string;
+  email?: string | null;
   gender: string | null;
   blood_group: string | null;
   allergies: string[];
+  chronic?: string[];
   created_at: string;
   updated_at: string;
 }

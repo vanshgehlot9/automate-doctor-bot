@@ -23,7 +23,7 @@ const containerVariants = {
 
 const itemVariants = {
   hidden: { y: 20, opacity: 0 },
-  show: { y: 0, opacity: 1, transition: { type: "spring", stiffness: 300, damping: 24 } }
+  show: { y: 0, opacity: 1, transition: { type: "spring" as const, stiffness: 300, damping: 24 } }
 };
 
 export default function DoctorAppointmentsPage() {
@@ -162,7 +162,7 @@ export default function DoctorAppointmentsPage() {
         <div className="h-8 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block"></div>
         <div className="flex items-center gap-2 w-full sm:w-auto px-2 pb-2 sm:pb-0">
           <Filter className="w-4 h-4 text-slate-400 hidden sm:block" />
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v || "all")}>
             <SelectTrigger className="w-full sm:w-[150px] border-none shadow-none bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors rounded-xl">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
