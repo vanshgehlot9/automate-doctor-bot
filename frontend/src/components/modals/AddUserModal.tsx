@@ -132,7 +132,7 @@ export function AddUserModal({ tenants = [], fixedRole, fixedTenantId, triggerTe
           {!fixedRole && (
             <div className="space-y-2">
               <Label htmlFor="role">Role</Label>
-              <Select value={role} onValueChange={setRole} required>
+              <Select value={role} onValueChange={(v) => setRole(v || "")} required>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a role" />
                 </SelectTrigger>
@@ -148,7 +148,7 @@ export function AddUserModal({ tenants = [], fixedRole, fixedTenantId, triggerTe
           {!fixedTenantId && (
             <div className="space-y-2">
               <Label htmlFor="tenant">Assign to Hospital</Label>
-              <Select value={tenantId} onValueChange={setTenantId} required>
+              <Select value={tenantId} onValueChange={(v) => setTenantId(v || "")} required>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a hospital" />
                 </SelectTrigger>

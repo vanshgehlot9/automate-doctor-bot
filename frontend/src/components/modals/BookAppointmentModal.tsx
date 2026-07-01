@@ -80,9 +80,8 @@ export function BookAppointmentModal() {
       patient_id: patientId,
       appointment_date: date,
       appointment_time: selectedSlot.start_time,
-      appointment_end: selectedSlot.end_time,
-      reason_for_visit: reason || "General Consultation",
-      status: "pending" // Initial status
+      reason: reason || "General Consultation",
+      status: "pending" as any // Initial status
     });
   };
 
@@ -112,7 +111,7 @@ export function BookAppointmentModal() {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>Select Doctor</Label>
-              <Select value={doctorId} onValueChange={setDoctorId}>
+              <Select value={doctorId} onValueChange={(v) => setDoctorId(v || "")}>
                 <SelectTrigger>
                   <SelectValue placeholder="Choose a doctor" />
                 </SelectTrigger>
@@ -192,7 +191,7 @@ export function BookAppointmentModal() {
 
             <div className="space-y-2">
               <Label>Select Patient</Label>
-              <Select value={patientId} onValueChange={setPatientId}>
+              <Select value={patientId} onValueChange={(v) => setPatientId(v || "")}>
                 <SelectTrigger>
                   <SelectValue placeholder="Search or select patient" />
                 </SelectTrigger>

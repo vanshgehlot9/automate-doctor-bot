@@ -157,3 +157,12 @@ export const verifyPrescription = async (id: string, data: any, tenantId?: strin
     headers: tenantId ? { "x-tenant-id": tenantId } : undefined
   })).data;
 };
+
+// Legacy
+export const fetchMyHotel = async (): Promise<any> => {
+  return null;
+};
+
+export const fetchCurrentUser = async (): Promise<any> => {
+  return null;
+};

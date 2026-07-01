@@ -30,7 +30,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-[#F9FAFB]">
       <Sidebar />
       <div className="flex flex-col min-h-screen">
-        <Topbar />
+        <Topbar userProfile={{ name: 'Super Admin', role: 'super_admin' } as any} />
         <main className="flex-1 p-8 ml-64 overflow-auto">
           <div className="max-w-7xl mx-auto space-y-8">
             {children}

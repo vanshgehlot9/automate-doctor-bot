@@ -46,9 +46,10 @@ export interface Appointment {
   patient_id: string;
   appointment_date: string;
   appointment_time: string;
-  status: 'scheduled' | 'completed' | 'cancelled' | 'no_show';
+  status: 'scheduled' | 'completed' | 'cancelled' | 'no_show' | 'pending' | 'confirmed' | 'waiting';
   reason: string | null;
   notes: string | null;
+  prescription_id?: string | null;
   created_at: string;
   updated_at: string;
 }

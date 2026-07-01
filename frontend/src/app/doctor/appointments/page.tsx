@@ -93,7 +93,7 @@ export default function DoctorAppointmentsPage() {
                             appointmentId={appt.id} 
                             patientId={appt.patient_id} 
                             doctorId={appt.doctor_id} 
-                            existingPrescriptionId={appt.prescription_id}
+                            existingPrescriptionId={appt.prescription_id || undefined}
                           />
                         </TableCell>
                       </TableRow>

@@ -14,7 +14,7 @@ export default function StaffAppointmentsPage() {
   const { data: patients, isLoading: loadingPatients } = useQuery({ queryKey: ["patients"], queryFn: getPatients });
 
   const updateStatus = useMutation({
-    mutationFn: ({ id, status }: { id: string, status: string }) => updateAppointment(id, { status }),
+    mutationFn: ({ id, status }: { id: string, status: any }) => updateAppointment(id, { status }),
     onSuccess: () => {
       toast.success("Status updated");
       queryClient.invalidateQueries({ queryKey: ["appointments"] });
