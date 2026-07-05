@@ -41,14 +41,12 @@ async def upload_report(
     )
     report = ReportService.create_report(t_id, report_in)
 
-    # Save raw bytes to Firebase Storage if available, else store inline
+    # Save raw bytes to Supabase Storage if available, else store inline
     try:
-        import firebase_admin.storage as _storage
-        bucket = _storage.bucket()
-        blob = bucket.blob(f"reports/{t_id}/{report.id}/{file.filename}")
-        blob.upload_from_string(contents, content_type=file.content_type)
-        blob.make_public()
-        file_url = blob.public_url
+        from app.db.supabase import db as _sb
+        storage_path = f"reports/{t_id}/{report.id}/{file.filename}"
+        _sb.storage.from_("reports").upload(storage_path, contents, {"content-type": file.content_type})
+        file_url = _sb.storage.from_("reports").get_public_url(storage_path)
         ReportService.update_report(t_id, report.id, MedicalReportUpdate(file_url=file_url))
     except Exception:
         pass  # Storage not configured; URL will remain empty

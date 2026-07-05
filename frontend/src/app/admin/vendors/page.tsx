@@ -137,8 +137,8 @@ export default function VendorsPage() {
       setOnboardingLogs([
         "🔑 Securing cryptographic keypairs...",
         "⚙️ Hashing password using standard bcrypt...",
-        "🗄️ Registering user credentials into Firebase Auth core...",
-        "🚀 Deploying partner profile data into Firestore catalog...",
+        "🗄️ Registering user credentials into Supabase Auth core...",
+        "🚀 Deploying partner profile data into Supabase catalog...",
       ]);
 
       // Simulate step-by-step credentials generation and messaging

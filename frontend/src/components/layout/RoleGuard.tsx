@@ -19,7 +19,7 @@ export function RoleGuard({ children, allowedRoles, fallback }: RoleGuardProps) 
   useEffect(() => {
     if (!loading) {
       if (!user || !userProfile) {
-        router.push("/login"); // Need to make sure this route exists and uses Firebase
+        router.push("/login"); // Need to make sure this route exists and uses Supabase Auth
       } else if (!hasPermission(userProfile.role, allowedRoles)) {
         router.push("/unauthorized"); // Need to create an unauthorized page
       }

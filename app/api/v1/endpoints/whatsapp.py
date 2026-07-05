@@ -787,7 +787,7 @@ def process_whatsapp_message(body: Dict[Any, Any]):
                 _resolved_tenant = _TenantService.get_tenant_by_phone_number_id(phone_number_id)
                 tenant_id = _resolved_tenant.id if _resolved_tenant else settings.DEFAULT_TENANT_ID
                 if not _resolved_tenant:
-                    logger.warning(f"[multi-tenant] No tenant found for phone_number_id={phone_number_id}. Falling back to DEFAULT_TENANT_ID. Register this number in Firestore.")
+                    logger.warning(f"[multi-tenant] No tenant found for phone_number_id={phone_number_id}. Falling back to DEFAULT_TENANT_ID. Register this number in Supabase tenants table.")
                 # ─────────────────────────────────────────────────────────────
                 
                 # Extract profile name
