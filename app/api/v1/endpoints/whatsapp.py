@@ -47,7 +47,7 @@ def _is_duplicate(mid: str) -> bool:
     return False
 
 def _debug_log(msg: str):
-    logger.info(msg)
+    logger.warning(msg)  # Forced to warning so Render logs it
     try:
         with open(DEBUG_LOG, "a") as f:
             f.write(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {msg}\n")
@@ -772,8 +772,13 @@ def process_whatsapp_message(body: Dict[Any, Any]):
         for entry in body.get("entry", []):
             for change in entry.get("changes", []):
                 value = change.get("value", {})
-                if "statuses" in value and "messages" not in value:
-                    return
+                if "statuses" in value:
+                    for status in value["statuses"]:
+                        if status.get("status") == "failed":
+                            err = status.get("errors", [{}])[0]
+                            logger.warning(f"[status] FAILED to deliver to {status.get('recipient_id')} | Error: {err.get('message')} ({err.get('code')}) | Details: {err.get('error_data', {}).get('details')}")
+                    if "messages" not in value:
+                        return
                 if "messages" not in value:
                     return
                 metadata        = value.get("metadata", {})
