@@ -1170,7 +1170,7 @@ async def whatsapp_flow_endpoint(request: Request):
     tenant_id = _flow_tenant.id if _flow_tenant else settings.DEFAULT_TENANT_ID
 
     if action == "ping":
-        response_data = {"version": "3", "data": {"status": "active"}}
+        response_data = {"version": "3.0", "data": {"status": "active"}}
 
     elif action == "INIT":
         flow_type = "clinic"
@@ -1188,7 +1188,7 @@ async def whatsapp_flow_endpoint(request: Request):
 
         if flow_type == "register":
             response_data = {
-                "version": "3", "screen": "PATIENT_REGISTRATION",
+                "version": "3.0", "screen": "PATIENT_REGISTRATION",
                 "data": {
                     "patient_name_prefill": name_prefill,
                     "patient_phone_prefill": phone_prefill,
@@ -1202,7 +1202,7 @@ async def whatsapp_flow_endpoint(request: Request):
             specialties = [{"id": s, "title": s} for s in sorted(specialties_set)]
             
             response_data = {
-                "version": "3", "screen": "DOCTOR_SELECTION",
+                "version": "3.0", "screen": "DOCTOR_SELECTION",
                 "data": {
                     "specialties": specialties,
                     "doctors": [{"id": "dummy", "title": "Please select a specialty first"}], 
@@ -1248,7 +1248,7 @@ async def whatsapp_flow_endpoint(request: Request):
                 specialties = [{"id": s, "title": s} for s in sorted(specialties_set)]
 
                 response_data = {
-                    "version": "3", "screen": "DOCTOR_SELECTION",
+                    "version": "3.0", "screen": "DOCTOR_SELECTION",
                     "data": {
                         "specialties": specialties,
                         "doctors": available if available else [{"id": "dummy", "title": "No doctors available"}], 
@@ -1286,7 +1286,7 @@ async def whatsapp_flow_endpoint(request: Request):
                     ]
                 
                 response_data = {
-                    "version": "3", "screen": "DATE_TIME_SELECTION",
+                    "version": "3.0", "screen": "DATE_TIME_SELECTION",
                     "data": {
                         "dates": dates_list if dates_list else [{"id": "dummy", "title": "No dates"}],
                         "times": [{"id": "dummy", "title": "Please select a date first"}], 
@@ -1331,7 +1331,7 @@ async def whatsapp_flow_endpoint(request: Request):
                             times_list.append({"id": t_str, "title": t_obj.strftime("%I:%M %p")})
 
                 response_data = {
-                    "version": "3", "screen": "DATE_TIME_SELECTION",
+                    "version": "3.0", "screen": "DATE_TIME_SELECTION",
                     "data": {
                         "dates": dates_list,
                         "times": times_list if times_list else [{"id": "dummy", "title": "No available slots"}],
@@ -1359,7 +1359,7 @@ async def whatsapp_flow_endpoint(request: Request):
                              f"\U0001f4de Phone: {phone}")
                 
                 response_data = {
-                    "version": "3", "screen": "SUMMARY",
+                    "version": "3.0", "screen": "SUMMARY",
                     "data": {
                         "summary_text": summary,
                         "specialty": specialty, "doctor": doctor_id,
@@ -1382,7 +1382,7 @@ async def whatsapp_flow_endpoint(request: Request):
                            f"⚕️ Gender: {gender}")
                 
                 response_data = {
-                    "version": "3", "screen": "REGISTRATION_SUMMARY",
+                    "version": "3.0", "screen": "REGISTRATION_SUMMARY",
                     "data": {
                         "summary_text": summary,
                         "name": name,
