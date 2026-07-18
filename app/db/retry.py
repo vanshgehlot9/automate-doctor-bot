@@ -9,7 +9,7 @@ with exponential backoff so a burst of WhatsApp webhooks doesn't cascade into
 import time
 import logging
 import functools
-from typing import TypeVar, Callable
+from typing import TypeVar, Callable, Optional
 
 import httpx
 
@@ -30,7 +30,7 @@ _TRANSIENT_EXCEPTIONS = (
 
 
 def with_retry(
-    fn: Callable[..., T] | None = None,
+    fn: Optional[Callable[..., T]] = None,
     *,
     max_retries: int = 3,
     base_delay: float = 0.3,

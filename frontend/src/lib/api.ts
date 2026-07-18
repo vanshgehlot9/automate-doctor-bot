@@ -121,6 +121,13 @@ export const deleteDoctor = async (id: string, tenantId?: string): Promise<void>
   });
 };
 
+export const updateDoctor = async (id: string, data: Partial<Doctor>, tenantId?: string): Promise<Doctor> => {
+  return (await api.put(`/doctors/${id}`, data, {
+    headers: tenantId ? { "x-tenant-id": tenantId } : undefined
+  })).data;
+};
+
+
 export const getDoctorSchedules = async (doctorId: string): Promise<any[]> => {
   return (await api.get(`/schedules/${doctorId}`)).data;
 };

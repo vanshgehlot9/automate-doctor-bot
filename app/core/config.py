@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     WHATSAPP_PHONE_NUMBER_ID: Optional[str] = None
     WHATSAPP_BUSINESS_ACCOUNT_ID: Optional[str] = None
     WHATSAPP_FLOW_ID: Optional[str] = None
+    WHATSAPP_REGISTRATION_FLOW_ID: Optional[str] = None
     
     # Default tenant (single-tenant mode)
     DEFAULT_TENANT_ID: str = "default"

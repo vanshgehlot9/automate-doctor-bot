@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getDoctorSchedules, createDoctorSchedule, createDoctorHoliday } from "@/lib/api";
@@ -42,6 +42,32 @@ export default function DoctorSchedulePage() {
     reason: "",
     type: "full_day"
   });
+
+  useEffect(() => {
+    if (schedules && schedules.length > 0) {
+      const existing = schedules.find(s => s.day_of_week === parseInt(activeDay));
+      if (existing) {
+        setFormData({
+          start_time: existing.start_time,
+          end_time: existing.end_time,
+          slot_duration_minutes: existing.slot_duration_minutes,
+          buffer_minutes: existing.buffer_minutes,
+          break_start: existing.break_start || "",
+          break_end: existing.break_end || ""
+        });
+      } else {
+        // Reset to default if no schedule exists for this day
+        setFormData({
+          start_time: "09:00",
+          end_time: "17:00",
+          slot_duration_minutes: 15,
+          buffer_minutes: 5,
+          break_start: "13:00",
+          break_end: "14:00"
+        });
+      }
+    }
+  }, [schedules, activeDay]);
 
   const scheduleMutation = useMutation({
     mutationFn: createDoctorSchedule,

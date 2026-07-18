@@ -1,5 +1,5 @@
-from pydantic import BaseModel, Field
-from typing import Optional, List, Dict, Any
+from pydantic import BaseModel, Field, ConfigDict
+from typing import Optional, List, Dict, Any, Union
 from datetime import datetime
 from enum import Enum
 
@@ -32,54 +32,56 @@ class FieldConfidence(BaseModel):
         return cls(value=val, confidence_score=score, status=status)
 
 class Medicine(BaseModel):
-    medicine_name: FieldConfidence
-    strength: Optional[FieldConfidence] = None
-    dosage: Optional[FieldConfidence] = None
-    frequency: Optional[FieldConfidence] = None
-    duration: Optional[FieldConfidence] = None
-    instructions: Optional[FieldConfidence] = None
+    model_config = ConfigDict(populate_by_name=True)
+    
+    medicine_name: Union[FieldConfidence, str] = Field(alias="name", default="")
+    strength: Optional[Union[FieldConfidence, str]] = None
+    dosage: Optional[Union[FieldConfidence, str]] = Field(alias="dose", default=None)
+    frequency: Optional[Union[FieldConfidence, str]] = None
+    duration: Optional[Union[FieldConfidence, str]] = None
+    instructions: Optional[Union[FieldConfidence, str]] = None
 
 class Diagnosis(BaseModel):
-    condition: FieldConfidence
+    condition: Union[FieldConfidence, str]
     abbreviation: Optional[str] = None
-    notes: Optional[FieldConfidence] = None
+    notes: Optional[Union[FieldConfidence, str]] = None
 
 class Investigation(BaseModel):
-    test_name: FieldConfidence
-    notes: Optional[FieldConfidence] = None
+    test_name: Union[FieldConfidence, str]
+    notes: Optional[Union[FieldConfidence, str]] = None
 
 class PatientVitals(BaseModel):
-    blood_pressure: Optional[FieldConfidence] = None
-    temperature: Optional[FieldConfidence] = None
-    pulse: Optional[FieldConfidence] = None
-    weight: Optional[FieldConfidence] = None
-    height: Optional[FieldConfidence] = None
+    blood_pressure: Optional[Union[FieldConfidence, str]] = None
+    temperature: Optional[Union[FieldConfidence, str]] = None
+    pulse: Optional[Union[FieldConfidence, str]] = None
+    weight: Optional[Union[FieldConfidence, str]] = None
+    height: Optional[Union[FieldConfidence, str]] = None
 
 class PrescriptionBase(BaseModel):
-    appointment_id: str
+    appointment_id: Optional[str] = None
     patient_id: str
     doctor_id: str
     
     # Metadata extracted by OCR
-    hospital_name: Optional[FieldConfidence] = None
-    doctor_name: Optional[FieldConfidence] = None
-    doctor_registration: Optional[FieldConfidence] = None
-    prescription_date: Optional[FieldConfidence] = None
-    patient_name: Optional[FieldConfidence] = None
-    patient_age: Optional[FieldConfidence] = None
-    patient_gender: Optional[FieldConfidence] = None
+    hospital_name: Optional[Union[FieldConfidence, str]] = None
+    doctor_name: Optional[Union[FieldConfidence, str]] = None
+    doctor_registration: Optional[Union[FieldConfidence, str]] = None
+    prescription_date: Optional[Union[FieldConfidence, str]] = None
+    patient_name: Optional[Union[FieldConfidence, str]] = None
+    patient_age: Optional[Union[FieldConfidence, str]] = None
+    patient_gender: Optional[Union[FieldConfidence, str]] = None
     
     # Clinical Data
-    chief_complaint: Optional[FieldConfidence] = None
-    clinical_notes: Optional[FieldConfidence] = None
+    chief_complaint: Optional[Union[FieldConfidence, str]] = None
+    clinical_notes: Optional[Union[FieldConfidence, str]] = None
     vitals: Optional[PatientVitals] = None
     diagnoses: List[Diagnosis] = []
     medicines: List[Medicine] = []
     investigations: List[Investigation] = []
     
     # Automations & Follow-up
-    follow_up_date: Optional[FieldConfidence] = None
-    special_notes: Optional[FieldConfidence] = None
+    follow_up_date: Optional[Union[FieldConfidence, str]] = None
+    special_notes: Optional[Union[FieldConfidence, str]] = None
 
 class PrescriptionVersion(BaseModel):
     version: int
@@ -94,10 +96,10 @@ class PrescriptionCreate(PrescriptionBase):
 class PrescriptionInDB(PrescriptionBase):
     id: str
     tenant_id: str
-    status: PrescriptionStatus = PrescriptionStatus.PROCESSING
+    status: Union[PrescriptionStatus, str] = PrescriptionStatus.PROCESSING
     ocr_provider: Optional[str] = None # e.g. "gemini-1.5-pro", "aws-textract"
     overall_confidence: Optional[float] = None
-    image_url: str
+    image_url: Optional[str] = None
     original_text: Optional[str] = None # Raw OCR text dump
     
     versions: List[PrescriptionVersion] = []

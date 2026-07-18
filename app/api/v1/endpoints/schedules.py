@@ -20,7 +20,7 @@ def create_schedule(schedule_in: DoctorScheduleCreate, current_user: CurrentUser
     """
     if schedule_in.tenant_id != current_user.tenant_id:
         raise HTTPException(status_code=403, detail="Tenant mismatch")
-    return ScheduleService.create_schedule(schedule_in)
+    return ScheduleService.create_schedule(current_user.tenant_id, schedule_in)
 
 @router.get("/{doctor_id}", response_model=List[DoctorScheduleInDB])
 def get_doctor_schedules(doctor_id: str, current_user: CurrentUser = Depends(get_current_user)):

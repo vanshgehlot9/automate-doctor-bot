@@ -11,6 +11,7 @@ class DoctorBase(BaseModel):
     consultation_fee: float
     availability_schedule: Dict # E.g., {"monday": ["09:00-13:00", "15:00-18:00"]}
     is_active: bool = True
+    whatsapp_number: Optional[str] = None  # e.g. "919876543210" — used to identify doctor in bot
 
 class DoctorCreate(DoctorBase):
     pass
@@ -24,6 +25,7 @@ class DoctorUpdate(BaseModel):
     consultation_fee: Optional[float] = None
     availability_schedule: Optional[Dict] = None
     is_active: Optional[bool] = None
+    whatsapp_number: Optional[str] = None  # Allow updating WhatsApp number
 
 class DoctorInDB(DoctorBase):
     id: str

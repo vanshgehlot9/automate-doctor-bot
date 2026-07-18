@@ -26,6 +26,7 @@ export interface Doctor {
   consultation_fee: number;
   availability_schedule: Record<string, any>;
   is_active: boolean;
+  whatsapp_number?: string | null;  // Doctor's personal WhatsApp for the Doctor Bot
   created_at: string;
   updated_at: string;
 }

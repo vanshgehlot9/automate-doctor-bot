@@ -22,8 +22,15 @@ class ScheduleService:
         
         data = schedule_in.dict()
         data['tenant_id'] = tenant_id
+        data.pop('buffer_minutes', None)
         
-        response = with_retry(lambda: db.table("doctor_schedules").insert(data).execute())()
+        # We must upsert or delete the old schedule for this day to avoid duplicates
+        existing = with_retry(lambda: db.table("doctor_schedules").select("id").eq("doctor_id", schedule_in.doctor_id).eq("day_of_week", schedule_in.day_of_week).execute())()
+        if existing.data:
+            response = with_retry(lambda: db.table("doctor_schedules").update(data).eq("id", existing.data[0]['id']).execute())()
+        else:
+            response = with_retry(lambda: db.table("doctor_schedules").insert(data).execute())()
+            
         if response.data:
             return DoctorScheduleInDB(**response.data[0])
         return None
@@ -94,9 +101,9 @@ class ScheduleService:
         # 3. Filter out already-booked slots
         if not db: return []
         
-        response = with_retry(lambda: db.table("appointments").select("appointment_time").eq("tenant_id", tenant_id).eq("doctor_id", doctor_id).eq("appointment_date", target_date.isoformat()).in_("status", ['Pending', 'Confirmed', 'Checked-In']).execute())()
+        response = with_retry(lambda: db.table("appointments").select("appointment_time").eq("tenant_id", tenant_id).eq("doctor_id", doctor_id).eq("appointment_date", target_date.isoformat()).in_("status", ["scheduled", "confirmed", "waiting", "checked-in", "in consultation", "completed"]).execute())()
         
-        booked_times = {row['appointment_time'] for row in response.data} if response.data else set()
+        booked_times = {row['appointment_time'][:5] for row in response.data} if response.data else set()
         
         # Alternatively we can check appointment_slots table if we migrate that. But appointments works for our fallback setup.
         

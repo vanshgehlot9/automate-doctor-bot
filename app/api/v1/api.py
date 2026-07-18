@@ -15,3 +15,5 @@ api_router.include_router(laboratory.router, prefix="/laboratory", tags=["labora
 api_router.include_router(users.router, prefix="/users", tags=["users"])
 api_router.include_router(prescriptions.router, prefix="/prescriptions", tags=["prescriptions"])
 api_router.include_router(reports.router, prefix="/reports", tags=["reports"])
+from app.api.v1.endpoints import debug_scheduler
+api_router.include_router(debug_scheduler.router, prefix="/debug", tags=["debug"])

@@ -1,0 +1,452 @@
+{
+    "version": "7.3",
+    "data_api_version": "3.0",
+    "routing_model": {
+        "APPOINTMENT": [
+            "DETAILS"
+        ],
+        "DETAILS": [
+            "SUMMARY"
+        ],
+        "SUMMARY": [
+            "TERMS"
+        ],
+        "TERMS": []
+    },
+    "screens": [
+        {
+            "id": "APPOINTMENT",
+            "title": "Appointment",
+            "data": {
+                "department": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "title": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "__example__": [
+                        {
+                            "id": "shopping",
+                            "title": "Shopping & Groceries"
+                        },
+                        {
+                            "id": "clothing",
+                            "title": "Clothing & Apparel"
+                        },
+                        {
+                            "id": "home",
+                            "title": "Home Goods & Decor"
+                        },
+                        {
+                            "id": "electronics",
+                            "title": "Electronics & Appliances"
+                        },
+                        {
+                            "id": "beauty",
+                            "title": "Beauty & Personal Care"
+                        }
+                    ]
+                },
+                "location": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "title": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "__example__": [
+                        {
+                            "id": "1",
+                            "title": "King’s Cross, London"
+                        },
+                        {
+                            "id": "2",
+                            "title": "Oxford Street, London"
+                        },
+                        {
+                            "id": "3",
+                            "title": "Covent Garden, London"
+                        },
+                        {
+                            "id": "4",
+                            "title": "Piccadilly Circus, London"
+                        }
+                    ]
+                },
+                "is_location_enabled": {
+                    "type": "boolean",
+                    "__example__": true
+                },
+                "date": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "title": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "__example__": [
+                        {
+                            "id": "2024-01-01",
+                            "title": "Mon Jan 01 2024"
+                        },
+                        {
+                            "id": "2024-01-02",
+                            "title": "Tue Jan 02 2024"
+                        },
+                        {
+                            "id": "2024-01-03",
+                            "title": "Wed Jan 03 2024"
+                        }
+                    ]
+                },
+                "is_date_enabled": {
+                    "type": "boolean",
+                    "__example__": true
+                },
+                "time": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "title": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "__example__": [
+                        {
+                            "id": "10:30",
+                            "title": "10:30"
+                        },
+                        {
+                            "id": "11:00",
+                            "title": "11:00",
+                            "enabled": false
+                        },
+                        {
+                            "id": "11:30",
+                            "title": "11:30"
+                        },
+                        {
+                            "id": "12:00",
+                            "title": "12:00",
+                            "enabled": false
+                        },
+                        {
+                            "id": "12:30",
+                            "title": "12:30"
+                        }
+                    ]
+                },
+                "is_time_enabled": {
+                    "type": "boolean",
+                    "__example__": true
+                }
+            },
+            "layout": {
+                "type": "SingleColumnLayout",
+                "children": [
+                    {
+                        "type": "Form",
+                        "name": "appointment_form",
+                        "children": [
+                            {
+                                "type": "Dropdown",
+                                "label": "Department",
+                                "name": "department",
+                                "data-source": "${data.department}",
+                                "required": true,
+                                "on-select-action": {
+                                    "name": "data_exchange",
+                                    "payload": {
+                                        "trigger": "department_selected",
+                                        "department": "${form.department}"
+                                    }
+                                }
+                            },
+                            {
+                                "type": "Dropdown",
+                                "label": "Location",
+                                "name": "location",
+                                "data-source": "${data.location}",
+                                "required": "${data.is_location_enabled}",
+                                "enabled": "${data.is_location_enabled}",
+                                "on-select-action": {
+                                    "name": "data_exchange",
+                                    "payload": {
+                                        "trigger": "location_selected",
+                                        "department": "${form.department}",
+                                        "location": "${form.location}"
+                                    }
+                                }
+                            },
+                            {
+                                "type": "Dropdown",
+                                "label": "Date",
+                                "name": "date",
+                                "data-source": "${data.date}",
+                                "required": "${data.is_date_enabled}",
+                                "enabled": "${data.is_date_enabled}",
+                                "on-select-action": {
+                                    "name": "data_exchange",
+                                    "payload": {
+                                        "trigger": "date_selected",
+                                        "department": "${form.department}",
+                                        "location": "${form.location}",
+                                        "date": "${form.date}"
+                                    }
+                                }
+                            },
+                            {
+                                "type": "Dropdown",
+                                "label": "Time",
+                                "name": "time",
+                                "data-source": "${data.time}",
+                                "required": "${data.is_time_enabled}",
+                                "enabled": "${data.is_time_enabled}"
+                            },
+                            {
+                                "type": "Footer",
+                                "label": "Continue",
+                                "on-click-action": {
+                                    "name": "navigate",
+                                    "next": {
+                                        "type": "screen",
+                                        "name": "DETAILS"
+                                    },
+                                    "payload": {
+                                        "department": "${form.department}",
+                                        "location": "${form.location}",
+                                        "date": "${form.date}",
+                                        "time": "${form.time}"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "id": "DETAILS",
+            "title": "Details",
+            "data": {
+                "department": {
+                    "type": "string",
+                    "__example__": "beauty"
+                },
+                "location": {
+                    "type": "string",
+                    "__example__": "1"
+                },
+                "date": {
+                    "type": "string",
+                    "__example__": "2024-01-01"
+                },
+                "time": {
+                    "type": "string",
+                    "__example__": "11:30"
+                }
+            },
+            "layout": {
+                "type": "SingleColumnLayout",
+                "children": [
+                    {
+                        "type": "Form",
+                        "name": "details_form",
+                        "children": [
+                            {
+                                "type": "TextInput",
+                                "label": "Name",
+                                "name": "name",
+                                "required": true
+                            },
+                            {
+                                "type": "TextInput",
+                                "label": "Email",
+                                "name": "email",
+                                "input-type": "email",
+                                "required": true
+                            },
+                            {
+                                "type": "TextInput",
+                                "label": "Phone",
+                                "name": "phone",
+                                "input-type": "phone",
+                                "required": true
+                            },
+                            {
+                                "type": "TextArea",
+                                "label": "Further details",
+                                "name": "more_details",
+                                "helper-text": "More details about your visit",
+                                "required": false
+                            },
+                            {
+                                "type": "Footer",
+                                "label": "Continue",
+                                "on-click-action": {
+                                    "name": "data_exchange",
+                                    "payload": {
+                                        "department": "${data.department}",
+                                        "location": "${data.location}",
+                                        "date": "${data.date}",
+                                        "time": "${data.time}",
+                                        "name": "${form.name}",
+                                        "email": "${form.email}",
+                                        "phone": "${form.phone}",
+                                        "more_details": "${form.more_details}"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "id": "SUMMARY",
+            "title": "Summary",
+            "terminal": true,
+            "data": {
+                "appointment": {
+                    "type": "string",
+                    "__example__": "Beauty & Personal Care Department at Kings Cross, London\nMon Jan 01 2024 at 11:30."
+                },
+                "details": {
+                    "type": "string",
+                    "__example__": "Name: John Doe\nEmail: john@example.com\nPhone: 123456789\n\nA free skin care consultation, please"
+                },
+                "department": {
+                    "type": "string",
+                    "__example__": "beauty"
+                },
+                "location": {
+                    "type": "string",
+                    "__example__": "1"
+                },
+                "date": {
+                    "type": "string",
+                    "__example__": "2024-01-01"
+                },
+                "time": {
+                    "type": "string",
+                    "__example__": "11:30"
+                },
+                "name": {
+                    "type": "string",
+                    "__example__": "John Doe"
+                },
+                "email": {
+                    "type": "string",
+                    "__example__": "john@example.com"
+                },
+                "phone": {
+                    "type": "string",
+                    "__example__": "123456789"
+                },
+                "more_details": {
+                    "type": "string",
+                    "__example__": "A free skin care consultation, please"
+                }
+            },
+            "layout": {
+                "type": "SingleColumnLayout",
+                "children": [
+                    {
+                        "type": "Form",
+                        "name": "confirmation_form",
+                        "children": [
+                            {
+                                "type": "TextHeading",
+                                "text": "Appointment"
+                            },
+                            {
+                                "type": "TextBody",
+                                "text": "${data.appointment}"
+                            },
+                            {
+                                "type": "TextHeading",
+                                "text": "Details"
+                            },
+                            {
+                                "type": "TextBody",
+                                "text": "${data.details}"
+                            },
+                            {
+                                "type": "OptIn",
+                                "name": "terms",
+                                "label": "I agree to the terms",
+                                "required": true,
+                                "on-click-action": {
+                                    "name": "navigate",
+                                    "next": {
+                                        "type": "screen",
+                                        "name": "TERMS"
+                                    },
+                                    "payload": {}
+                                }
+                            },
+                            {
+                                "type": "Footer",
+                                "label": "Confirm Appointment",
+                                "on-click-action": {
+                                    "name": "data_exchange",
+                                    "payload": {
+                                        "department": "${data.department}",
+                                        "location": "${data.location}",
+                                        "date": "${data.date}",
+                                        "time": "${data.time}",
+                                        "name": "${data.name}",
+                                        "email": "${data.email}",
+                                        "phone": "${data.phone}",
+                                        "more_details": "${data.more_details}"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "id": "TERMS",
+            "title": "Terms and Conditions",
+            "layout": {
+                "type": "SingleColumnLayout",
+                "children": [
+                    {
+                        "type": "TextHeading",
+                        "text": "Our Terms"
+                    },
+                    {
+                        "type": "TextBody",
+                        "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+                    }
+                ]
+            }
+        }
+    ]
+}

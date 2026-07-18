@@ -90,6 +90,9 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
     except HTTPException:
         raise
     except Exception as e:
+        print(f"DEBUG: get_current_user Exception: {type(e).__name__} - {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(e)

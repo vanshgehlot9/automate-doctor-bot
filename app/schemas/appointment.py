@@ -4,13 +4,13 @@ from datetime import datetime, date
 from enum import Enum
 
 class AppointmentStatus(str, Enum):
-    PENDING = "Pending"
-    CONFIRMED = "Confirmed"
-    CHECKED_IN = "Checked-In"
-    IN_CONSULTATION = "In Consultation"
-    COMPLETED = "Completed"
-    CANCELLED = "Cancelled"
-    NO_SHOW = "No Show"
+    SCHEDULED = "scheduled"
+    CONFIRMED = "confirmed"
+    CHECKED_IN = "checked-in"
+    IN_CONSULTATION = "in consultation"
+    COMPLETED = "completed"
+    CANCELLED = "cancelled"
+    NO_SHOW = "no show"
 
 class AppointmentBase(BaseModel):
     patient_id: str
@@ -20,7 +20,7 @@ class AppointmentBase(BaseModel):
     appointment_end: str # End time, e.g., "10:45"
     slot_id: Optional[str] = None
     reason_for_visit: str
-    status: AppointmentStatus = AppointmentStatus.PENDING
+    status: AppointmentStatus = AppointmentStatus.SCHEDULED
     is_walk_in: bool = False
     queue_number: Optional[int] = None
     follow_up_to: Optional[str] = None # ID of previous appointment

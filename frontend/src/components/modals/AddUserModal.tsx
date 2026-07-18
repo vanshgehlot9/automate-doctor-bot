@@ -42,6 +42,7 @@ export function AddUserModal({ tenants = [], fixedRole, fixedTenantId, triggerTe
   const [specialization, setSpecialization] = useState("");
   const [experience, setExperience] = useState<number>(0);
   const [fee, setFee] = useState<number>(500);
+  const [whatsappNumber, setWhatsappNumber] = useState("");
 
   const [loading, setLoading] = useState(false);
   const queryClient = useQueryClient();
@@ -57,6 +58,7 @@ export function AddUserModal({ tenants = [], fixedRole, fixedTenantId, triggerTe
         metadata.specialization = specialization;
         metadata.experience = experience;
         metadata.fee = fee;
+        metadata.whatsapp_number = whatsappNumber || undefined;
       }
 
       // Import the action dynamically to avoid Next.js client-side errors
@@ -139,6 +141,7 @@ export function AddUserModal({ tenants = [], fixedRole, fixedTenantId, triggerTe
                 setSpecialization("");
                 setExperience(0);
                 setFee(500);
+                setWhatsappNumber("");
                 if (!fixedRole) setRole("");
                 if (!fixedTenantId) setTenantId("");
               }}>
@@ -226,6 +229,18 @@ export function AddUserModal({ tenants = [], fixedRole, fixedTenantId, triggerTe
                     required={isDoctor} 
                   />
                 </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="whatsapp_number">
+                  WhatsApp Number
+                  <span className="text-muted-foreground text-xs ml-2">(for Doctor Bot, e.g. 919876543210)</span>
+                </Label>
+                <Input 
+                  id="whatsapp_number" 
+                  value={whatsappNumber} 
+                  onChange={(e) => setWhatsappNumber(e.target.value)} 
+                  placeholder="91XXXXXXXXXX (country code + number)"
+                />
               </div>
             </>
           )}

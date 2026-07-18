@@ -134,7 +134,8 @@ async function completeInvitationFlow(adminClient: any, userId: string, invitati
         qualifications: ["MBBS"],
         languages: ["English"],
         availability_schedule: { "monday": ["09:00-17:00"] },
-        is_active: true
+        is_active: true,
+        whatsapp_number: invitation.metadata.whatsapp_number || null,
       });
       
     if (doctorError) throw doctorError;

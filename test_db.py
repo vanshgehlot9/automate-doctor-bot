@@ -1,3 +1,7 @@
 from app.db.supabase import db
-if db:
-    print("Auth Users:", db.auth.admin.list_users())
+import json
+
+res = db.table("prescriptions").select("id, medicines").execute()
+for r in res.data:
+    print(r["id"])
+    print(json.dumps(r["medicines"], indent=2))

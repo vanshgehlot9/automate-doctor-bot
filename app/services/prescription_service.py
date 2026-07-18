@@ -30,7 +30,7 @@ class PrescriptionService:
         
         prescription_data.update({
             "tenant_id": tenant_id,
-            "status": PrescriptionStatus.NEEDS_VERIFICATION.value if hasattr(PrescriptionStatus.NEEDS_VERIFICATION, 'value') else "Needs Verification",
+            "status": str(getattr(PrescriptionStatus.NEEDS_VERIFICATION, "value", PrescriptionStatus.NEEDS_VERIFICATION)) if hasattr(PrescriptionStatus.NEEDS_VERIFICATION, 'value') else "Needs Verification",
             "created_at": now.isoformat(),
             "updated_at": now.isoformat(),
             "versions": [initial_version]
@@ -99,8 +99,8 @@ class PrescriptionService:
         now = datetime.utcnow()
         
         for p in all_prescriptions:
-            status_val = p.status.value if hasattr(p.status, "value") else p.status
-            if status_val not in ("Verified", "Approved", "Needs Verification"):
+            status_val = str(getattr(p.status, "value", p.status)) if hasattr(p.status, "value") else p.status
+            if str(status_val).lower() not in ("verified", "approved", "needs verification", "needs_verification"):
                 continue
                 
             if not p.medicines:
@@ -111,7 +111,7 @@ class PrescriptionService:
             days_since_created = (now - created_date).days
             
             for med in p.medicines:
-                duration_str = med.duration.value if med.duration else ""
+                duration_str = str(getattr(med.duration, 'value', med.duration)) if med.duration else ""
                 if not duration_str:
                     if days_since_created < 30:
                         is_active = True
@@ -151,27 +151,33 @@ class PrescriptionService:
         
         for p in active_prescriptions:
             for med in p.medicines:
-                med_name = med.medicine_name.value if med.medicine_name else "Unknown Medicine"
-                freq = med.frequency.value.lower() if med.frequency else ""
-                instructions = med.instructions.value if med.instructions else ""
+                med_name = str(getattr(med.medicine_name, "value", med.medicine_name)) if med.medicine_name else "Unknown Medicine"
+                freq = str(getattr(med.frequency, 'value', med.frequency)).lower() if med.frequency else ""
+                instructions = str(getattr(med.instructions, 'value', med.instructions)) if med.instructions else ""
                 
-                if "1-" in freq or "morning" in freq or "od" in freq or "bd" in freq or "tds" in freq or "am" in freq:
+                is_morning = any(x in freq for x in ["1-", "morning", "od", "bd", "tds", "am", "once", "twice", "thrice", "daily"])
+                is_afternoon = any(x in freq for x in ["-1-", "afternoon", "tds", "thrice"])
+                is_night = any(x in freq for x in ["-1", "night", "bd", "tds", "pm", "hs", "twice", "thrice", "nightly", "bedtime"])
+                
+                if is_morning:
                     schedule["Morning (8:00 AM)"].append(f"✓ {med_name} ({instructions})")
-                
-                if "-1-" in freq or "afternoon" in freq or "tds" in freq:
+                if is_afternoon:
                     schedule["Afternoon (1:00 PM)"].append(f"✓ {med_name} ({instructions})")
-                    
-                if "-1" in freq or "night" in freq or "bd" in freq or "tds" in freq or "pm" in freq or "hs" in freq:
+                if is_night:
                     schedule["Night (9:00 PM)"].append(f"✓ {med_name} ({instructions})")
+                
+                # Fallback: if we didn't match anything, just put it in morning so they don't miss it
+                if not is_morning and not is_afternoon and not is_night and freq:
+                    schedule["Morning (8:00 AM)"].append(f"✓ {med_name} ({instructions}) [Freq: {freq}]")
                     
         return schedule
 
     @staticmethod
     def format_prescription_for_whatsapp(prescription: PrescriptionInDB) -> str:
         lines = []
-        doctor = prescription.doctor_name.value if prescription.doctor_name else "Doctor"
+        doctor = str(getattr(prescription.doctor_name, "value", prescription.doctor_name)) if prescription.doctor_name else "Doctor"
         
-        date_val = prescription.prescription_date.value if prescription.prescription_date else None
+        date_val = str(getattr(prescription.prescription_date, "value", prescription.prescription_date)) if prescription.prescription_date else None
         if date_val:
             date_str = date_val
         else:
@@ -184,11 +190,11 @@ class PrescriptionService:
         lines.append("")
         
         for med in prescription.medicines:
-            name = med.medicine_name.value if med.medicine_name else "Unknown"
-            strength = f" {med.strength.value}" if med.strength else ""
-            freq = f" - {med.frequency.value}" if med.frequency else ""
-            dur = f" for {med.duration.value}" if med.duration else ""
-            inst = f" ({med.instructions.value})" if med.instructions else ""
+            name = str(getattr(med.medicine_name, "value", med.medicine_name)) if med.medicine_name else "Unknown"
+            strength = f" {str(getattr(med.strength, 'value', med.strength))}" if med.strength else ""
+            freq = f" - {str(getattr(med.frequency, 'value', med.frequency))}" if med.frequency else ""
+            dur = f" for {str(getattr(med.duration, 'value', med.duration))}" if med.duration else ""
+            inst = f" ({str(getattr(med.instructions, 'value', med.instructions))})" if med.instructions else ""
             
             lines.append(f"✅ *{name}{strength}*")
             if freq or dur or inst:

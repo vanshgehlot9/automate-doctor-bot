@@ -26,6 +26,21 @@ class DoctorService:
         return None
 
     @staticmethod
+    def get_doctor_by_whatsapp_number(whatsapp_number: str) -> Optional[DoctorInDB]:
+        """
+        Identify a doctor by their personal WhatsApp number.
+        Used by the DoctorAgent to authenticate incoming messages.
+        The number should be in E.164-style string e.g. '919876543210'.
+        """
+        if not db: return None
+        response = with_retry(
+            lambda: db.table("doctors").select("*").eq("whatsapp_number", whatsapp_number).execute()
+        )()
+        if response.data:
+            return DoctorInDB(**response.data[0])
+        return None
+
+    @staticmethod
     def create_doctor(tenant_id: str, doctor: DoctorCreate) -> Optional[DoctorInDB]:
         if not db: return None
         
@@ -72,3 +87,4 @@ class DoctorService:
         # In supabase-py, data might be returned on successful delete if configured, or just check count
         # Typically, if it doesn't throw an error, it succeeded.
         return True
+

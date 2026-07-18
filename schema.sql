@@ -247,3 +247,19 @@ CREATE TABLE tenant_settings (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- WhatsApp Accounts Table
+CREATE TABLE whatsapp_accounts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,
+    bot_name TEXT NOT NULL,
+    bot_type TEXT NOT NULL,
+    phone_number TEXT NOT NULL,
+    phone_number_id TEXT NOT NULL UNIQUE,
+    access_token TEXT NOT NULL,
+    private_key_path TEXT NOT NULL,
+    public_key_path TEXT NOT NULL,
+    verify_token TEXT,
+    status TEXT DEFAULT 'active',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
