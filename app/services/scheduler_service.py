@@ -345,7 +345,9 @@ def _run_async(coro):
 
 class ReminderScheduler:
     def __init__(self):
-        self.scheduler = AsyncIOScheduler()
+        import pytz
+        tz = pytz.timezone("Asia/Kolkata")
+        self.scheduler = AsyncIOScheduler(timezone=tz)
         self._running = False
 
     def start(self):
