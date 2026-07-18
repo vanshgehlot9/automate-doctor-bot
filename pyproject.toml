@@ -19,6 +19,7 @@ dependencies = [
     "google-generativeai",
     "python-multipart==0.0.20",
     "google-genai",
+    "apscheduler",
 ]
 
 [build-system]
