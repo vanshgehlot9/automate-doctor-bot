@@ -38,9 +38,22 @@ class WhatsAppFlowEncryption:
                 ring.append((k, self._fp(k)))
                 logger.info(f"[crypto] Loaded current key from FILE fp={ring[-1][1]} path={self.private_key_path}")
                 
+        env_key = os.environ.get("WHATSAPP_PRIVATE_KEY")
+        if not ring and env_key:
+            try:
+                # Ensure the env key has proper newlines
+                env_key_formatted = env_key.replace("\\n", "\n")
+                if "BEGIN PRIVATE KEY" not in env_key_formatted:
+                    env_key_formatted = f"-----BEGIN PRIVATE KEY-----\n{env_key_formatted}\n-----END PRIVATE KEY-----"
+                k = load_pem_private_key(env_key_formatted.encode("utf-8"), password=None)
+                ring.append((k, self._fp(k)))
+                logger.info(f"[crypto] Loaded current key from ENV WHATSAPP_PRIVATE_KEY fp={ring[-1][1]}")
+            except Exception as e:
+                logger.warning(f"[crypto] Could not load key from ENV WHATSAPP_PRIVATE_KEY: {e}")
+
         if not ring:
-            logger.error(f"[crypto] ❌ NO KEYS LOADED from {self.private_key_path} — decryption will fail!")
-            raise FileNotFoundError(f"No usable private key in {self.private_key_path!r}")
+            logger.error(f"[crypto] ❌ NO KEYS LOADED from {self.private_key_path} or ENV — decryption will fail!")
+            raise FileNotFoundError(f"No usable private key in {self.private_key_path!r} or WHATSAPP_PRIVATE_KEY")
             
         logger.info(f"[crypto] Keyring ready — {len(ring)} key(s) available.")
         return ring
