@@ -270,23 +270,40 @@ async def _send_mood_checkins():
 
 async def _send_water_reminders():
     """
-    Send water reminders every 30 minutes to all patients.
-    No persistent dedup — each cron firing is independent.
+    Send water reminders to each patient based on their personal interval preference.
+    
+    The scheduler fires this every 30 minutes. We use IST-aware "minutes since midnight"
+    to determine if this tick is the right moment to send for each patient's chosen interval.
+    
+    Intervals:
+      0   → Off (never send)
+      30  → Every 30 minutes (fires every tick)
+      60  → Every 60 minutes (fires only at minute=0 of each hour: 7:00, 8:00, 9:00 ...)
+      120 → Every 2 hours (fires only at minute=0 of even hours: 8:00, 10:00, 12:00 ...)
+    
+    Quiet hours (11 PM – 7 AM IST): skip entirely.
     """
     logger.info("[Scheduler] ▶ water reminders")
 
     try:
-        sender = _get_sender()
-        hour = datetime.now().hour
-        minute = datetime.now().minute
+        import pytz
+        tz = pytz.timezone("Asia/Kolkata")
+        now_ist = datetime.now(tz)
+        hour_ist   = now_ist.hour
+        minute_ist = now_ist.minute
 
-        # Skip late night (11 PM – 6 AM)
-        if hour >= 23 or hour < 6:
-            logger.info("[Scheduler] Water reminder skipped — quiet hours")
+        # Quiet hours: 11 PM to 7 AM IST
+        if hour_ist >= 23 or hour_ist < 7:
+            logger.info("[Scheduler] Water reminder skipped — quiet hours (IST)")
             return
 
-        half = "30" if minute >= 30 else "00"
-        logger.info(f"[Scheduler] Water reminder firing at {hour}:{half}")
+        # "Minutes since midnight" — used for modular interval math
+        mins_since_midnight = hour_ist * 60 + minute_ist
+
+        logger.info(f"[Scheduler] Water reminder tick at IST {hour_ist:02d}:{minute_ist:02d} "
+                    f"(mins_since_midnight={mins_since_midnight})")
+
+        sender = _get_sender()
 
         for tid in _get_all_tenant_ids():
             for p in _get_all_patients(tid):
@@ -297,17 +314,37 @@ async def _send_water_reminders():
                 if not clean:
                     continue
 
-                # Check custom water interval
-                interval = 30
-                if p.insurance_details and "water_interval" in p.insurance_details:
-                    interval = p.insurance_details["water_interval"]
-                
+                # ── Determine per-patient interval ──────────────────────────────
+                interval = 30  # default
+                try:
+                    meta = p.insurance_details
+                    if isinstance(meta, dict) and "water_interval" in meta:
+                        stored = int(meta["water_interval"])
+                        if stored in (0, 30, 60, 120):
+                            interval = stored
+                except Exception:
+                    pass  # fall back to 30m default
+
+                # ── Gate: should we send at this tick? ──────────────────────────
                 if interval == 0:
-                    continue # Off
-                elif interval == 60 and minute >= 30:
-                    continue # Only fire on top of the hour for 60m
-                elif interval == 120 and (minute >= 30 or hour % 2 != 0):
-                    continue # Only fire on even hours on top of the hour for 120m
+                    # Turned off — never send
+                    continue
+
+                # Only send if mins_since_midnight is an exact multiple of interval.
+                # The scheduler fires at :00 and :30 each hour. So:
+                #   interval=30  → fires at 7:00, 7:30, 8:00, 8:30 ... (every tick)
+                #   interval=60  → fires at 7:00, 8:00, 9:00 ...      (top of hour only)
+                #   interval=120 → fires at 8:00, 10:00, 12:00 ...    (even hours only)
+                if mins_since_midnight % interval != 0:
+                    continue
+
+                # ── Build message ────────────────────────────────────────────────
+                if interval == 30:
+                    time_str = "30 minutes"
+                elif interval == 60:
+                    time_str = "1 hour"
+                else:
+                    time_str = "2 hours"
 
                 payload = {
                     "type": "interactive",
@@ -316,8 +353,9 @@ async def _send_water_reminders():
                         "body": {
                             "text": (
                                 f"💧 *Water Reminder* for {p.name}!\n\n"
-                                "It's been 30 minutes — time to drink a glass of water "
-                                "and stay hydrated! 🥤"
+                                f"It's been {time_str} — time to drink a glass of water "
+                                "and stay hydrated! 🥤\n\n"
+                                "_Reply ⚙️ Settings from main menu to change reminder frequency._"
                             )
                         },
                         "action": {
@@ -329,10 +367,12 @@ async def _send_water_reminders():
                 }
                 ok = sender.send_interactive_message(clean, payload)
                 if ok:
-                    logger.info(f"[Scheduler] Water reminder sent → {clean}")
+                    logger.info(f"[Scheduler] Water reminder sent → {clean} (interval={interval}m)")
 
     except Exception as e:
         logger.error(f"[Scheduler] Unhandled error in _send_water_reminders: {e}")
+
+
 
 
 # ---------------------------------------------------------------------------
