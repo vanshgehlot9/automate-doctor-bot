@@ -456,10 +456,10 @@ class ReminderScheduler:
             "cron", hour=16, minute=0, id="mood_checkin"
         )
 
-        # Water reminder — every 30 minutes (reliable, in-memory, no file state)
+        # Water reminder — cron at :00 and :30 of every hour (clock-aligned, not relative to server start)
         self.scheduler.add_job(
             lambda: _run_async(_send_water_reminders()),
-            "interval", minutes=30, id="water_reminder"
+            "cron", minute="0,30", id="water_reminder"
         )
 
         self.scheduler.start()
