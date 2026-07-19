@@ -220,24 +220,38 @@ async def _send_medicine_reminders(slot_label: str, greeting: str):
 
 
 async def _send_mood_checkins():
-    """Send once-daily mood check-in to all patients at 4 PM."""
+    """
+    Send once-daily mood check-in to all patients at 4 PM IST.
+    Uses IST date for dedup key — critical because UTC date != IST date at 4 PM.
+    Deduplicates by phone number within a single run to prevent duplicates across tenants.
+    """
     logger.info("[Scheduler] ▶ mood check-ins")
-    today = date.today().isoformat()
 
     try:
+        import pytz
+        tz = pytz.timezone("Asia/Kolkata")
+        today_ist = datetime.now(tz).date().isoformat()  # IST date, not UTC!
+
         sender = _get_sender()
+        sent_phones_this_tick: set = set()  # dedup by phone within this run
 
         for tid in _get_all_tenant_ids():
             for p in _get_all_patients(tid):
                 if not p.mobile_number:
                     continue
 
-                key = f"mood_{p.id}_{today}"
-                if key in _sent_mood:
-                    continue
-
                 clean = _clean_phone(p.mobile_number)
                 if not clean:
+                    continue
+
+                # Dedup by phone number to avoid sending 2x if same number is in multiple tenants
+                if clean in sent_phones_this_tick:
+                    logger.info(f"[Scheduler] Mood check-in skipped (dup phone) → {clean}")
+                    continue
+
+                # Dedup by patient+IST date so we never send twice in a day
+                key = f"mood_{clean}_{today_ist}"
+                if key in _sent_mood:
                     continue
 
                 payload = {
@@ -246,8 +260,8 @@ async def _send_mood_checkins():
                         "type": "button",
                         "body": {
                             "text": (
-                                f"Hi {p.name}! 🌞 Your daily health check-in from Aatomate Health.\n\n"
-                                "How are you feeling today?"
+                                f"Hi {p.name}! 🌞 *Daily Health Check-in*\n\n"
+                                "How are you feeling today? Your response helps your doctor track your health. 💊"
                             )
                         },
                         "action": {
@@ -262,6 +276,7 @@ async def _send_mood_checkins():
                 ok = sender.send_interactive_message(clean, payload)
                 if ok:
                     _sent_mood.add(key)
+                    sent_phones_this_tick.add(clean)
                     logger.info(f"[Scheduler] Mood check-in sent → {clean}")
 
     except Exception as e:
@@ -304,6 +319,7 @@ async def _send_water_reminders():
                     f"(mins_since_midnight={mins_since_midnight})")
 
         sender = _get_sender()
+        sent_phones_this_tick: set = set()  # dedup by phone within this run
 
         for tid in _get_all_tenant_ids():
             for p in _get_all_patients(tid):
@@ -312,6 +328,12 @@ async def _send_water_reminders():
 
                 clean = _clean_phone(p.mobile_number)
                 if not clean:
+                    continue
+
+                # Dedup by phone number — if same number appears in multiple tenants,
+                # only send once using the FIRST profile's preferences
+                if clean in sent_phones_this_tick:
+                    logger.info(f"[Scheduler] Water reminder skipped (dup phone) → {clean}")
                     continue
 
                 # ── Determine per-patient interval ──────────────────────────────
@@ -367,6 +389,7 @@ async def _send_water_reminders():
                 }
                 ok = sender.send_interactive_message(clean, payload)
                 if ok:
+                    sent_phones_this_tick.add(clean)
                     logger.info(f"[Scheduler] Water reminder sent → {clean} (interval={interval}m)")
 
     except Exception as e:
